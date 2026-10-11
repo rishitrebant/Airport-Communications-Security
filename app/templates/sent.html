@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Sent{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Sent Messages</h1></div>
+
+{% if messages %}
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>To Department</th><th>Subject</th><th>Time</th></tr></thead>
+        <tbody>
+        {% for m in messages %}
+        <tr>
+            <td>{{ m.recipient_department }}</td>
+            <td><a href="{{ url_for('messages.view_message', msg_id=m.id) }}">{{ m.subject }}</a></td>
+            <td style="white-space:nowrap">{{ m.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state card"><p>No sent messages.</p></div>
+{% endif %}
+{% endblock %}

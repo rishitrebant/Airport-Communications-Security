@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Attack Lab{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Attack Simulation Lab</h1>
+    <a href="{{ url_for('lab.results_dashboard') }}" class="btn btn-outline btn-sm">View Results</a>
+</div>
+
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+    All scenarios run against this application's own security controls using synthetic data. No external targets are contacted.
+</p>
+
+<div class="scenario-card">
+    <h3>Scenario 1 — Unauthorised Access</h3>
+    <p>Tests whether an operator-role user can perform administrator actions. Exercises the actual authorisation check.</p>
+    <form method="POST" action="{{ url_for('lab.run_scenario', scenario='unauthorized_access') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Run Test</button>
+    </form>
+</div>
+
+<div class="scenario-card">
+    <h3>Scenario 2 — Message Tampering</h3>
+    <p>Creates a message with a valid HMAC tag, modifies the body, and checks whether HMAC verification detects the change.</p>
+    <form method="POST" action="{{ url_for('lab.run_scenario', scenario='message_tampering') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Run Test</button>
+    </form>
+</div>
+
+<div class="scenario-card">
+    <h3>Scenario 3 — Message Replay</h3>
+    <p>Inserts a message, then verifies that the same UUID cannot be reused, preventing replay or duplicate submission.</p>
+    <form method="POST" action="{{ url_for('lab.run_scenario', scenario='replay_attack') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Run Test</button>
+    </form>
+</div>
+
+<div class="scenario-card">
+    <h3>Scenario 4 — Rate Limiting</h3>
+    <p>Verifies that rate-limiting configuration is active on login and message endpoints.</p>
+    <form method="POST" action="{{ url_for('lab.run_scenario', scenario='rate_limit') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Run Test</button>
+    </form>
+</div>
+
+<div class="scenario-card">
+    <h3>Scenario 5 — SQL Injection</h3>
+    <p>Sends a classic SQL injection payload through the ORM's parameterised query and confirms it is treated as literal data.</p>
+    <form method="POST" action="{{ url_for('lab.run_scenario', scenario='sql_injection') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Run Test</button>
+    </form>
+</div>
+
+{% if results %}
+<div class="card" style="margin-top:24px;">
+    <div class="card-title">Recent Results</div>
+    <div class="table-wrap" style="border:none;box-shadow:none;">
+        <table>
+            <thead><tr><th>Scenario</th><th>Result</th><th>Observed</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for r in results[:10] %}
+            <tr>
+                <td>{{ r.scenario }}</td>
+                <td><span class="badge badge-{{ 'success' if r.passed else 'danger' }}">{{ 'PASS' if r.passed else 'FAIL' }}</span></td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ r.observed_outcome[:80] }}</td>
+                <td style="white-space:nowrap">{{ r.test_time.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

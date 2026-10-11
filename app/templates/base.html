@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ACS{% endblock %} — Airport Comms Security</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-container">
+    <nav class="sidebar" style="display:flex;flex-direction:column;">
+        <div class="sidebar-brand">
+            <h2>ACS</h2>
+            <small>Airport Comms Security</small>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-section">Operations</li>
+            <li><a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">&#9632; Dashboard</a></li>
+            <li><a href="{{ url_for('messages.inbox') }}" class="{% if request.endpoint == 'messages.inbox' %}active{% endif %}">&#9993; Inbox</a></li>
+            <li><a href="{{ url_for('messages.sent') }}" class="{% if request.endpoint == 'messages.sent' %}active{% endif %}">&#10148; Sent</a></li>
+            <li><a href="{{ url_for('messages.compose') }}" class="{% if request.endpoint == 'messages.compose' %}active{% endif %}">&#9998; Compose</a></li>
+
+            {% if current_user.can_access_audit() %}
+            <li class="nav-section">Security</li>
+            <li><a href="{{ url_for('admin.audit_log') }}" class="{% if request.endpoint == 'admin.audit_log' %}active{% endif %}">&#128270; Audit Log</a></li>
+            {% endif %}
+
+            {% if current_user.can_admin() %}
+            <li class="nav-section">Administration</li>
+            <li><a href="{{ url_for('admin.user_management') }}" class="{% if request.endpoint == 'admin.user_management' %}active{% endif %}">&#128100; Users</a></li>
+            {% endif %}
+
+            {% if current_user.can_access_lab() %}
+            <li class="nav-section">Lab</li>
+            <li><a href="{{ url_for('lab.lab_home') }}" class="{% if request.endpoint == 'lab.lab_home' %}active{% endif %}">&#128296; Attack Lab</a></li>
+            <li><a href="{{ url_for('lab.results_dashboard') }}" class="{% if request.endpoint == 'lab.results_dashboard' %}active{% endif %}">&#128202; Results</a></li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                {{ current_user.username }}<br>
+                <span style="color:var(--accent)">{{ current_user.department }}</span><br>
+                <span style="text-transform:capitalize">{{ current_user.role }}</span>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" style="padding:10px 20px;font-size:13px;color:var(--text-muted);">Logout</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+</body>
+</html>

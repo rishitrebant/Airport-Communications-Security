@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Operations Dashboard</h1>
+    <span style="font-size:13px;color:var(--text-muted);">{{ current_user.department }}</span>
+</div>
+
+<div class="stat-grid">
+    <div class="card">
+        <div class="card-title">Inbox Messages</div>
+        <div class="card-value">{{ inbox_count }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Sent Messages</div>
+        <div class="card-value">{{ sent_count }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Blocked Requests</div>
+        <div class="card-value" style="color:var(--warning)">{{ blocked_count }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Integrity Failures</div>
+        <div class="card-value" style="color:var(--danger)">{{ integrity_fail_count }}</div>
+    </div>
+</div>
+
+{% if recent_events %}
+<div class="card">
+    <div class="card-title">Recent Security Events</div>
+    <div class="table-wrap" style="border:none;box-shadow:none;">
+        <table>
+            <thead><tr><th>Time</th><th>Event</th><th>Outcome</th><th>Detail</th></tr></thead>
+            <tbody>
+            {% for e in recent_events %}
+            <tr>
+                <td style="white-space:nowrap">{{ e.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ e.event_type }}</td>
+                <td><span class="badge badge-{{ 'success' if e.outcome == 'success' else ('danger' if e.outcome == 'denied' else 'warning') }}">{{ e.outcome }}</span></td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ e.detail or '—' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if recent_results %}
+<div class="card">
+    <div class="card-title">Latest Lab Results</div>
+    <div class="table-wrap" style="border:none;box-shadow:none;">
+        <table>
+            <thead><tr><th>Scenario</th><th>Mode</th><th>Result</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for r in recent_results %}
+            <tr>
+                <td>{{ r.scenario }}</td>
+                <td><span class="badge badge-info">{{ r.mode }}</span></td>
+                <td><span class="badge badge-{{ 'success' if r.passed else 'danger' }}">{{ 'PASS' if r.passed else 'FAIL' }}</span></td>
+                <td>{{ r.test_time.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "acs-dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "source venv/bin/activate && python3 run.py"],
+      "port": 5001,
+      "autoPort": true
+    }
+  ]
+}

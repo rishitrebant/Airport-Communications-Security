@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Message{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Message Detail</h1>
+    <a href="{{ url_for('messages.inbox') }}" class="btn btn-outline btn-sm">Back to Inbox</a>
+</div>
+
+<div class="card" style="max-width:700px;">
+    <table style="width:100%;font-size:14px;">
+        <tr><td style="color:var(--text-muted);width:140px;padding:6px 0;">Message ID</td><td>{{ message.message_uuid }}</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0;">From</td><td>{{ message.sender.username }} ({{ message.sender.department }})</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0;">To Department</td><td>{{ message.recipient_department }}</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0;">Subject</td><td><strong>{{ message.subject }}</strong></td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0;">Timestamp</td><td>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</td></tr>
+        <tr>
+            <td style="color:var(--text-muted);padding:6px 0;">Integrity</td>
+            <td>
+                {% if integrity_ok %}
+                <span class="integrity-pass">&#10003; HMAC Verified</span>
+                {% else %}
+                <span class="integrity-fail">&#10007; HMAC Verification Failed — message may have been tampered with</span>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <hr style="border-color:var(--border);margin:16px 0;">
+    <div style="white-space:pre-wrap;line-height:1.6;">{{ message.body }}</div>
+    <hr style="border-color:var(--border);margin:16px 0;">
+    <div style="font-size:11px;color:var(--text-muted);font-family:monospace;">HMAC: {{ message.hmac_tag }}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Test Results Dashboard</h1>
+    <div>
+        <a href="{{ url_for('lab.export_results', fmt='json') }}" class="btn btn-outline btn-sm">Export JSON</a>
+        <a href="{{ url_for('lab.export_results', fmt='csv') }}" class="btn btn-outline btn-sm">Export CSV</a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="card">
+        <div class="card-title">Total Tests</div>
+        <div class="card-value">{{ total }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Passed</div>
+        <div class="card-value" style="color:var(--success)">{{ passed }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Failed</div>
+        <div class="card-value" style="color:var(--danger)">{{ failed }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Access Denials</div>
+        <div class="card-value" style="color:var(--warning)">{{ denied_count }}</div>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="card">
+        <div class="card-title">Integrity Failures Detected</div>
+        <div class="card-value">{{ integrity_count }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Replays Blocked</div>
+        <div class="card-value">{{ replay_count }}</div>
+    </div>
+</div>
+
+{% if results %}
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Run ID</th><th>Scenario</th><th>Mode</th><th>Expected</th><th>Observed</th><th>Result</th><th>Time</th></tr></thead>
+        <tbody>
+        {% for r in results %}
+        <tr>
+            <td style="font-size:11px;font-family:monospace">{{ r.run_id[:8] }}</td>
+            <td>{{ r.scenario }}</td>
+            <td><span class="badge badge-info">{{ r.mode }}</span></td>
+            <td style="font-size:12px">{{ r.expected_outcome[:60] }}</td>
+            <td style="font-size:12px">{{ r.observed_outcome[:60] }}</td>
+            <td><span class="badge badge-{{ 'success' if r.passed else 'danger' }}">{{ 'PASS' if r.passed else 'FAIL' }}</span></td>
+            <td style="white-space:nowrap">{{ r.test_time.strftime('%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state card"><p>No test results yet. Run scenarios in the Attack Lab.</p></div>
+{% endif %}
+{% endblock %}

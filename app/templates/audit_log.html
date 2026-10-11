@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Audit Log{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Security Audit Log</h1></div>
+
+<form class="filter-bar" method="GET">
+    <select name="event_type">
+        <option value="">All Events</option>
+        {% for et in event_types %}
+        <option value="{{ et }}" {% if event_filter == et %}selected{% endif %}>{{ et }}</option>
+        {% endfor %}
+    </select>
+    <select name="outcome">
+        <option value="">All Outcomes</option>
+        <option value="success" {% if outcome_filter == 'success' %}selected{% endif %}>Success</option>
+        <option value="denied" {% if outcome_filter == 'denied' %}selected{% endif %}>Denied</option>
+        <option value="failure" {% if outcome_filter == 'failure' %}selected{% endif %}>Failure</option>
+    </select>
+    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+</form>
+
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Time</th><th>Event</th><th>Actor</th><th>Target</th><th>Outcome</th><th>Detail</th></tr></thead>
+        <tbody>
+        {% for l in logs.items %}
+        <tr>
+            <td style="white-space:nowrap">{{ l.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ l.event_type }}</td>
+            <td>{{ l.actor_id or '—' }}</td>
+            <td style="font-size:12px">{{ l.target or '—' }}</td>
+            <td><span class="badge badge-{{ 'success' if l.outcome == 'success' else ('danger' if l.outcome == 'denied' else 'warning') }}">{{ l.outcome }}</span></td>
+            <td style="font-size:12px;color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;">{{ l.detail or '—' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if logs.pages > 1 %}
+<div class="pagination">
+    {% if logs.has_prev %}<a href="?page={{ logs.prev_num }}&event_type={{ event_filter }}&outcome={{ outcome_filter }}">Prev</a>{% endif %}
+    {% for p in logs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p %}<a href="?page={{ p }}&event_type={{ event_filter }}&outcome={{ outcome_filter }}" class="{% if p == logs.page %}current{% endif %}">{{ p }}</a>{% else %}<span>...</span>{% endif %}
+    {% endfor %}
+    {% if logs.has_next %}<a href="?page={{ logs.next_num }}&event_type={{ event_filter }}&outcome={{ outcome_filter }}">Next</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
