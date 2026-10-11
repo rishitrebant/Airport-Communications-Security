@@ -8,7 +8,13 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
     HMAC_SECRET = os.environ.get("HMAC_SECRET") or secrets.token_hex(32)
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///airport_comms.db")
+    default_db = (
+    "sqlite:////tmp/airport_comms.db"
+    if os.environ.get("VERCEL")
+    else "sqlite:///airport_comms.db"
+)
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or default_db
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEMO_MODE = os.environ.get("DEMO_MODE", "false").lower() == "true"
     WTF_CSRF_ENABLED = True
