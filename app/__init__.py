@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -45,5 +46,28 @@ def create_app(config_class=None):
 
     with app.app_context():
         db.create_all()
+
+        if os.environ.get("SEED_DEMO_USERS", "false").lower() == "true":
+            if not User.query.first():
+                demo_users = [
+                    ("admin", "AdminPass123!", "admin", "Operations Control"),
+                    ("ops_controller", "OpsPass123!", "operator", "Operations Control"),
+                    ("gate_agent", "GatePass123!", "operator", "Gate Operations"),
+                    ("baggage_handler", "BagPass123!", "operator", "Baggage Handling"),
+                    ("maint_tech", "MaintPass123!", "operator", "Maintenance"),
+                    ("sec_analyst", "SecPass123!", "security_analyst", "Operations Control"),
+                ]
+
+                for username, password, role, department in demo_users:
+                    user = User(
+                        username=username,
+                        role=role,
+                        department=department,
+                    )
+                    user.set_password(password)
+                    db.session.add(user)
+
+                db.session.commit()
+            
 
     return app
